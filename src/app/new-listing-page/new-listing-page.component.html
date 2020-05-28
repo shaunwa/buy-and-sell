@@ -1,24 +1,6 @@
 <div class="content-box">
     <h2>Create New Listing</h2>
-    <form (ngSubmit)="onSubmit()">
-        <div>
-            <label for="name">
-                Name:
-            </label>
-            <input id="name" name="name" type="text" [(ngModel)]="name" />
-        </div>
-        <div>
-            <label for="description">
-                Item Description:
-            </label>
-            <input id="description" name="description" type="text" [(ngModel)]="description" />
-        </div>
-        <div>
-            <label for="price">
-                Price:
-            </label>
-            <input id="price" name="price" type="text" [(ngModel)]="price" />
-        </div>
-        <button type="submit">Create Listing</button>
-    </form>
+    <app-listing-data-form
+        buttonText="Create Listing"
+        (onSubmit)="onSubmit()"></app-listing-data-form>
 </div>
