@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Listing } from './types';
 
@@ -9,6 +10,13 @@ const httpOptions = {
   })
 };
 
+const httpOptionsWithAuthToken = token => ({
+  headers: new HttpHeaders({
+    'Content-Type': 'application/json',
+    'AuthToken': token,
+  })
+});
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,6 +24,7 @@ export class ListingsService {
 
   constructor(
     private http: HttpClient,
+    private auth: AngularFireAuth,
   ) { }
 
   getListings(): Observable<Listing[]> {
@@ -35,7 +44,20 @@ export class ListingsService {
   }
 
   getListingsForUser(): Observable<Listing[]> {
-    return this.http.get<Listing[]>('/api/users/12345/listings');
+    return new Observable<Listing[]>(observer => {
+      this.auth.user.subscribe(user => {
+        user && user.getIdToken().then(token => {
+          if (user && token) {
+            this.http.get<Listing[]>(`/api/users/${user.uid}/listings`, httpOptionsWithAuthToken(token))
+              .subscribe(listings => {
+                observer.next(listings);
+              });
+          } else {
+            observer.next([]);
+          }
+        })
+      })
+    })
   }
 
   deleteListing(id: string): Observable<any> {
